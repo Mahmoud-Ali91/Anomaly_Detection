@@ -76,7 +76,8 @@ elif selection == "Anomalies Seen With Data Analysis":
     # Numerical Analysis
     st.subheader("Numerical Analysis")
     if st.checkbox("Show Correlation Heatmap"):
-        corr = df.corr()
+        float_columns = df.select_dtypes(include='float')
+        corr = float_columns.corr()
         fig = px.imshow(
             corr,
             text_auto=True,
