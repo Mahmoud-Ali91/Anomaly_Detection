@@ -164,7 +164,7 @@ elif selection == "Anomalies Seen With Data Analysis":
     float_columns = df.select_dtypes(include='float')
 
     # Dropdown menu for selecting X and Y features
-    features = float_columns.tolist()
+    features = df.float_columns.tolist()
     x_feature = st.selectbox("Select X Feature", features)
     y_feature = st.selectbox("Select Y Feature", features)
 
