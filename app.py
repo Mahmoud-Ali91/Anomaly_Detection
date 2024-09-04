@@ -160,7 +160,7 @@ elif selection == "Anomalies Seen With Data Analysis":
         fig = px.box(df, x=numerical_column)
         st.plotly_chart(fig)
         
-    st.title("Scatter Plot Generator")
+    st.title("How Each feature relates to the other?")
     
     # Select only float columns
     float_columns = df.select_dtypes(include='float').columns.tolist()
