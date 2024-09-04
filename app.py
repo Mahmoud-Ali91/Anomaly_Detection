@@ -313,7 +313,7 @@ elif selection == "Anomalies Seen With Unsupervised Machine Learning":
     y='Anomaly Percentage Result',
     color='Model').properties(title="Model Performance Comparison with Tuned Parameters")
     # Load your data
-df = pd.read_csv('data.csv')  # Replace with your data source
+df = pd.read_csv('Healthcare_Providers_cleaned.csv.csv')  
 
 # Function to apply scenarios to the dataset
 def apply_scenario(df, increase_med_allowed, decrease_med_allowed, increase_sub_charge, decrease_sub_charge, increase_med_payment, decrease_med_payment, percentage):
