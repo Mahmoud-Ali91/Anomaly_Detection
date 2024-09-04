@@ -198,7 +198,7 @@ elif selection == "Anomalies Seen With Unsupervised Machine Learning":
         encoded_df = pd.DataFrame(encoded_columns, columns=encoder.get_feature_names_out(binary_columns))
         st.session_state.df_encoded = pd.concat([st.session_state.df.drop(columns=binary_columns), encoded_df], axis=1)
     
-    if st.checkbox("Show Encoded Data"):
+    if st.checkbox("Show Encoded Data(Educational)"):
         st.write(st.session_state.df_encoded)
 
     # Scaling
@@ -206,7 +206,7 @@ elif selection == "Anomalies Seen With Unsupervised Machine Learning":
         robust_scaler = RobustScaler()
         st.session_state.df_encoded_scaled = pd.DataFrame(robust_scaler.fit_transform(st.session_state.df_encoded), columns=st.session_state.df_encoded.columns)
     
-    if st.checkbox("Show Scaled Data"):
+    if st.checkbox("Show Scaled Data(Educational)"):
         st.write(st.session_state.df_encoded_scaled)
 
     # PCA
