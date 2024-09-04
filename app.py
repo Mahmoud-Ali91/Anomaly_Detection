@@ -312,6 +312,156 @@ elif selection == "Anomalies Seen With Unsupervised Machine Learning":
     x='Model',
     y='Anomaly Percentage Result',
     color='Model').properties(title="Model Performance Comparison with Tuned Parameters")
+    # Load your data
+df = pd.read_csv('data.csv')  # Replace with your data source
+
+# Function to apply scenarios to the dataset
+def apply_scenario(df, increase_med_allowed, decrease_med_allowed, increase_sub_charge, decrease_sub_charge, increase_med_payment, decrease_med_payment, percentage):
+    df_scenarios = {}
+    factor = 1 + (percentage / 100.0)
+
+    if increase_med_allowed:
+        df_scenarios['Increase_Medical_Allowed'] = df.copy()
+        df_scenarios['Increase_Medical_Allowed']['Average_Medicare_Allowed_Amount'] *= factor
+
+    if decrease_med_allowed:
+        df_scenarios['Decrease_Medical_Allowed'] = df.copy()
+        df_scenarios['Decrease_Medical_Allowed']['Average_Medicare_Allowed_Amount'] *= 1 / factor
+
+    if increase_sub_charge:
+        df_scenarios['Increase_Submitted_Charge'] = df.copy()
+        df_scenarios['Increase_Submitted_Charge']['Average_Submitted_Charge_Amount'] *= factor
+
+    if decrease_sub_charge:
+        df_scenarios['Decrease_Submitted_Charge'] = df.copy()
+        df_scenarios['Decrease_Submitted_Charge']['Average_Submitted_Charge_Amount'] *= 1 / factor
+
+    if increase_med_payment:
+        df_scenarios['Increase_Medicare_Payment'] = df.copy()
+        df_scenarios['Increase_Medicare_Payment']['Average_Medicare_Payment_Amount'] *= factor
+
+    if decrease_med_payment:
+        df_scenarios['Decrease_Medicare_Payment'] = df.copy()
+        df_scenarios['Decrease_Medicare_Payment']['Average_Medicare_Payment_Amount'] *= 1 / factor
+    
+    return df_scenarios
+
+def calculate_anomaly_rate(df):
+    features = df[['Average_Medicare_Allowed_Amount', 'Average_Submitted_Charge_Amount', 'Average_Medicare_Payment_Amount']]
+    
+    # Encoding
+    binary_columns = ['Entity Type of the Provider', 'Place of Service', 'HCPCS Drug Indicator']
+    encoder = OneHotEncoder(sparse_output=False, drop='first')
+    encoded_columns = encoder.fit_transform(df[binary_columns])
+    encoded_df = pd.DataFrame(encoded_columns, columns=encoder.get_feature_names_out(binary_columns))
+    df_encoded = pd.concat([df.drop(columns=binary_columns), encoded_df], axis=1)
+    
+    # Scaling
+    robust_scaler = RobustScaler()
+    df_encoded_scaled = pd.DataFrame(robust_scaler.fit_transform(df_encoded), columns=df_encoded.columns)
+    
+    # PCA
+    pca = PCA(n_components=2)
+    X_pca_2d = pca.fit_transform(df_encoded_scaled)
+    
+    # Apply Isolation Forest
+    iso_forest = IsolationForest(contamination=0.1, random_state=42)
+    outliers = iso_forest.fit_predict(X_pca_2d)
+    
+    # Calculate anomaly rate
+    anomaly_count = np.sum(outliers == -1)
+    total_count = len(outliers)
+    anomaly_rate = anomaly_count / total_count
+    
+    return anomaly_rate
+
+# Streamlit app
+st.title("Medical Data Anomaly Detection")
+
+# Main tab for anomaly detection
+with st.container():
+    st.header("Unsupervised Machine Learning")
+    
+    # Initialize session state
+    if 'df' not in st.session_state:
+        st.session_state.df = df.drop(['City of the Provider', 'State Code of the Provider', 'Provider Type', 'HCPCS Code'], axis=1)
+    if 'df_encoded' not in st.session_state:
+        st.session_state.df_encoded = None
+    if 'df_encoded_scaled' not in st.session_state:
+        st.session_state.df_encoded_scaled = None
+    if 'X_pca_2d' not in st.session_state:
+        st.session_state.X_pca_2d = None
+    if 'X_pca_3d' not in st.session_state:
+        st.session_state.X_pca_3d = None
+
+    # Encoding
+    if st.session_state.df_encoded is None:
+        binary_columns = ['Entity Type of the Provider', 'Place of Service', 'HCPCS Drug Indicator']
+        encoder = OneHotEncoder(sparse_output=False, drop='first')
+        encoded_columns = encoder.fit_transform(st.session_state.df[binary_columns])
+        encoded_df = pd.DataFrame(encoded_columns, columns=encoder.get_feature_names_out(binary_columns))
+        st.session_state.df_encoded = pd.concat([st.session_state.df.drop(columns=binary_columns), encoded_df], axis=1)
+    
+    if st.checkbox("Show Encoded Data (Educational)"):
+        st.write(st.session_state.df_encoded)
+
+    # Scaling
+    if st.session_state.df_encoded_scaled is None:
+        robust_scaler = RobustScaler()
+        st.session_state.df_encoded_scaled = pd.DataFrame(robust_scaler.fit_transform(st.session_state.df_encoded), columns=st.session_state.df_encoded.columns)
+    
+    if st.checkbox("Show Scaled Data (Educational)"):
+        st.write(st.session_state.df_encoded_scaled)
+
+    # PCA
+    if st.session_state.X_pca_2d is None or st.session_state.X_pca_3d is None:
+        pca_pipeline_2d = Pipeline([('pca', PCA(n_components=2))])
+        pca_pipeline_3d = Pipeline([('pca', PCA(n_components=3))])
+        st.session_state.X_pca_2d = pca_pipeline_2d.fit_transform(st.session_state.df_encoded_scaled)
+        st.session_state.X_pca_3d = pca_pipeline_3d.fit_transform(st.session_state.df_encoded_scaled)
+
+    # Display scenario planning
+    st.subheader("Scenario Planning")
+    st.markdown("""
+    **Scenario Analysis:**
+
+    Users can select different percentages to apply as changes to the key financial metrics and observe how these changes impact the anomaly detection results.
+
+    **Instructions:** Select the scenarios and percentage changes below to apply these changes and see the results.
+
+    """)
+
+    # Scenario inputs
+    percentage = st.selectbox("Select Percentage for Increase/Decrease:", [10, 20, 30, 40, 50, 100])
+    
+    increase_med_allowed = st.checkbox("Increase Medicare Allowed Amount")
+    decrease_med_allowed = st.checkbox("Decrease Medicare Allowed Amount")
+    increase_sub_charge = st.checkbox("Increase Submitted Charge Amount")
+    decrease_sub_charge = st.checkbox("Decrease Submitted Charge Amount")
+    increase_med_payment = st.checkbox("Increase Medicare Payment Amount")
+    decrease_med_payment = st.checkbox("Decrease Medicare Payment Amount")
+
+    # Apply scenarios
+    df_scenarios = apply_scenario(df, increase_med_allowed, decrease_med_allowed, increase_sub_charge, decrease_sub_charge, increase_med_payment, decrease_med_payment, percentage)
+
+    # Calculate baseline anomaly rate
+    baseline_anomaly_rate = calculate_anomaly_rate(df)
+
+    # Calculate anomaly rates for scenarios
+    scenario_results = {scenario: calculate_anomaly_rate(data) for scenario, data in df_scenarios.items()}
+
+    # Display results
+    st.subheader("Anomaly Rate Comparison")
+    st.write(f'Baseline Anomaly Rate: {baseline_anomaly_rate:.4f}')
+    results_df = pd.DataFrame(list(scenario_results.items()), columns=['Scenario', 'Anomaly Rate'])
+    st.write(results_df)
+
+    # Plot results
+    fig, ax = plt.subplots()
+    results_df.plot(kind='bar', x='Scenario', y='Anomaly Rate', ax=ax, color='skyblue')
+    ax.set_ylabel('Anomaly Rate')
+    ax.set_title('Anomaly Rate Comparison for Different Scenarios')
+    st.pyplot(fig)
 
     st.altair_chart(chart, use_container_width=True)        
 footer = st.sidebar.container()
