@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
 import numpy as np
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import OneHotEncoder, RobustScaler
@@ -324,6 +325,35 @@ elif selection == "Anomalies Seen With Unsupervised Machine Learning":
         df_iso['Anomaly'] = outliers == -1
         anomaly_insights(df_iso)
     
+
+    def plot_anomaly_heatmap(df):
+        st.subheader("Anomaly Detection Heatmap")
+    
+    # Calculate correlation matrix
+    correlation_matrix = df.corr()
+    
+    # Create a heatmap using Plotly
+    fig = go.Figure(data=go.Heatmap(
+        z=correlation_matrix.values,
+        x=correlation_matrix.columns,
+        y=correlation_matrix.columns,
+        colorscale='Viridis',
+        colorbar=dict(title='Correlation')
+    ))
+
+    # Update layout
+    fig.update_layout(
+        title='Feature Correlation Heatmap',
+        xaxis_title='Features',
+        yaxis_title='Features'
+    )
+    
+    # Display the heatmap in Streamlit
+    st.plotly_chart(fig)
+
+# In your Streamlit app
+if model_option == "Isolation Forest":
+    plot_anomaly_heatmap(st.session_state.df_encoded_scaled)
         
 footer = st.sidebar.container()
 st.sidebar.markdown('#')        
