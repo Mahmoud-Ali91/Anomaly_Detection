@@ -313,6 +313,16 @@ elif selection == "Anomalies Seen With Unsupervised Machine Learning":
     y='Anomaly Percentage Result',
     color='Model').properties(title="Model Performance Comparison with Tuned Parameters")
     st.altair_chart(chart, use_container_width=True)
+    def anomaly_insights(df):
+    st.subheader("Anomaly Insights")
+    anomalies = df[df['Anomaly'] == 1]
+    st.write(f"Number of Anomalies: {len(anomalies)}")
+    st.write(anomalies.describe())  
+    
+    # In your Streamlit app
+    if model_option == "Isolation Forest":
+        df_iso['Anomaly'] = outliers == -1
+        anomaly_insights(df_iso)
     
         
 footer = st.sidebar.container()
