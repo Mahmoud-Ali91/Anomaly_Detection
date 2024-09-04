@@ -72,7 +72,61 @@ elif selection == "Anomalies Seen With Data Analysis":
     fig.update_layout(title=f'Distribution of {categorical_column}')
     fig.update_traces(hoverinfo='label+percent', textinfo='value', textfont_size=12)
     st.plotly_chart(fig)
+# Visualization for top N records
+    st.subheader("Top N Records Analysis")
+    selected_column = st.selectbox("Select column to analyze", ['HCPCS Code', 'City of the Provider', 'State Code of the Provider', 'Provider Type'])
+    top_n = st.slider("Select number of top records to display", min_value=1, max_value=25, value=10)
 
+    top_n_data = df.groupby(selected_column)['Number of Services'].sum().nlargest(top_n).reset_index()
+    fig = px.bar(top_n_data, x=selected_column, y='Number of Services', color=selected_column)
+    fig.update_layout(title=f'Top {top_n} {selected_column} by Number of Services')
+    st.plotly_chart(fig)
+
+    # Sunburst Chart
+    st.subheader("Sunburst Chart")
+    fig_sunburst = px.sunburst(
+        df,
+        path=['State Code of the Provider', 'Provider Type'],
+        values='Number of Services',
+        color='Number of Services',
+        color_continuous_scale='Viridis',
+        title="Sunburst Chart: Number of Services by State and Provider Type"
+    )
+
+    fig_sunburst.update_layout(
+        height=600,
+        margin=dict(t=50, l=25, r=25, b=25)
+    )
+    st.plotly_chart(fig_sunburst)
+
+    # Choropleth Map
+    st.subheader("Choropleth Map")
+    state_services = df.groupby('State Code of the Provider')['Number of Services'].sum().reset_index()
+
+    fig_choropleth = px.choropleth(
+        state_services,
+        locations='State Code of the Provider',
+        locationmode="USA-states",
+        color='Number of Services',
+        color_continuous_scale="Viridis",
+        scope="usa",
+        labels={'Number of Services': 'Number of Services'},
+        title="Number of Services by State"
+    )
+    fig_choropleth.update_layout(
+        geo=dict(
+            lakecolor='rgb(255, 255, 255)',
+        ),
+        title={
+            'text': "Number of Services by State",
+            'y': 0.9,
+            'x': 0.5,
+            'xanchor': 'center',
+            'yanchor': 'top'
+        },
+    )
+    st.plotly_chart(fig_choropleth)
+    
     # Numerical Analysis
     st.subheader("Numerical Analysis")
     if st.checkbox("Show Correlation Heatmap"):
@@ -105,6 +159,21 @@ elif selection == "Anomalies Seen With Data Analysis":
     if numerical_column:
         fig = px.box(df, x=numerical_column)
         st.plotly_chart(fig)
+        
+    st.title("Scatter Plot Generator")
+    float_columns = df.select_dtypes(include='float')
+
+    # Dropdown menu for selecting X and Y features
+    features = float_columns.tolist()
+    x_feature = st.selectbox("Select X Feature", features)
+    y_feature = st.selectbox("Select Y Feature", features)
+
+    # Ensure that X and Y features are not the same
+    if x_feature != y_feature:
+        fig = px.scatter(df, x=x_feature, y=y_feature, title=f'Scatter Plot of {x_feature} vs {y_feature}')
+        st.plotly_chart(fig)
+    else:
+        st.error("Please select different features for X and Y axes.")
 elif selection == "Anomalies Seen With Unsupervised Machine Learning":
     st.header("Unsupervised Machine Learning")
 
