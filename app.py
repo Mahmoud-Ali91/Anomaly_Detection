@@ -312,8 +312,9 @@ elif selection == "Anomalies Seen With Unsupervised Machine Learning":
     x='Model',
     y='Anomaly Percentage Result',
     color='Model').properties(title="Model Performance Comparison with Tuned Parameters")
-    # Load your data
-df = pd.read_csv('Healthcare_Providers_cleaned.csv.csv')  
+    st.altair_chart(chart, use_container_width=True)
+    
+df = pd.read_csv('Healthcare_Providers_cleaned.csv')  
 
 # Function to apply scenarios to the dataset
 def apply_scenario(df, increase_med_allowed, decrease_med_allowed, increase_sub_charge, decrease_sub_charge, increase_med_payment, decrease_med_payment, percentage):
@@ -462,8 +463,7 @@ with st.container():
     ax.set_ylabel('Anomaly Rate')
     ax.set_title('Anomaly Rate Comparison for Different Scenarios')
     st.pyplot(fig)
-
-    st.altair_chart(chart, use_container_width=True)        
+        
 footer = st.sidebar.container()
 st.sidebar.markdown('#')        
 footer = st.sidebar.container()
