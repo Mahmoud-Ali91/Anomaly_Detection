@@ -74,7 +74,7 @@ elif selection == "Anomalies Seen With Data Analysis":
     st.plotly_chart(fig)
 # Visualization for top N records
     st.subheader("Top Records Analysis")
-    selected_column = st.selectbox("Select column to analyze", ['HCPCS Code', 'City of the Provider', 'State Code of the Provider', 'Provider Type'])
+    selected_column = st.selectbox("Select column to analyze", ['City of the Provider', 'State Code of the Provider', 'Provider Type'])
     top_n = st.slider("Select number of top records to display", min_value=1, max_value=25, value=10)
 
     top_n_data = df.groupby(selected_column)['Number of Services'].sum().nlargest(top_n).reset_index()
