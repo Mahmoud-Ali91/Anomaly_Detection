@@ -73,7 +73,7 @@ elif selection == "Anomalies Seen With Data Analysis":
     fig.update_traces(hoverinfo='label+percent', textinfo='value', textfont_size=12)
     st.plotly_chart(fig)
 # Visualization for top N records
-    st.subheader("Top N Records Analysis")
+    st.subheader("Top Records Analysis")
     selected_column = st.selectbox("Select column to analyze", ['HCPCS Code', 'City of the Provider', 'State Code of the Provider', 'Provider Type'])
     top_n = st.slider("Select number of top records to display", min_value=1, max_value=25, value=10)
 
@@ -83,7 +83,7 @@ elif selection == "Anomalies Seen With Data Analysis":
     st.plotly_chart(fig)
 
     # Sunburst Chart
-    st.subheader("Sunburst Chart")
+    st.subheader("Interactive Chart")
     fig_sunburst = px.sunburst(
         df,
         path=['State Code of the Provider', 'Provider Type'],
@@ -100,7 +100,7 @@ elif selection == "Anomalies Seen With Data Analysis":
     st.plotly_chart(fig_sunburst)
 
     # Choropleth Map
-    st.subheader("Choropleth Map")
+    st.subheader("States Provider Map")
     state_services = df.groupby('State Code of the Provider')['Number of Services'].sum().reset_index()
 
     fig_choropleth = px.choropleth(
@@ -161,13 +161,14 @@ elif selection == "Anomalies Seen With Data Analysis":
         st.plotly_chart(fig)
         
     st.title("Scatter Plot Generator")
-    float_columns = df.select_dtypes(include='float')
-
+    
+    # Select only float columns
+    float_columns = df.select_dtypes(include='float').columns.tolist()
+    
     # Dropdown menu for selecting X and Y features
-    features = df.float_columns.tolist()
-    x_feature = st.selectbox("Select X Feature", features)
-    y_feature = st.selectbox("Select Y Feature", features)
-
+    x_feature = st.selectbox("Select X Feature", float_columns)
+    y_feature = st.selectbox("Select Y Feature", float_columns)
+    
     # Ensure that X and Y features are not the same
     if x_feature != y_feature:
         fig = px.scatter(df, x=x_feature, y=y_feature, title=f'Scatter Plot of {x_feature} vs {y_feature}')
