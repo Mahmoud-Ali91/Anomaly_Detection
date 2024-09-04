@@ -218,7 +218,7 @@ elif selection == "Anomalies Seen With Unsupervised Machine Learning":
         st.session_state.X_pca_3d = pca_pipeline_3d.fit_transform(st.session_state.df_encoded_scaled)
 
     # Choose ML Model
-    model_option = st.radio("Select a model for clustering", ["K-Means", "DBSCAN", "Isolation Forest"])
+    model_option = st.radio("Select a model for clustering", ["K-Means", "DBSCAN", "Isolation Forest", "Ensemble"])
     progress_bar = st.progress(0)
     for i in range(100):
     # Simulating some work
@@ -325,6 +325,75 @@ elif selection == "Anomalies Seen With Unsupervised Machine Learning":
         df_iso['Anomaly'] = outliers == -1
         anomaly_insights(df_iso)
     
+if model_option == "Ensemble":
+    st.subheader("Ensemble Model")
+    
+    # Functions for individual models (you can reuse your existing functions)
+    def run_kmeans(X, n_clusters=2):
+        kmeans = KMeans(n_clusters=n_clusters, random_state=42)
+        labels = kmeans.fit_predict(X)
+        return labels == 0
+
+    def run_dbscan(X, eps=0.5, min_samples=5):
+        dbscan = DBSCAN(eps=eps, min_samples=min_samples)
+        labels = dbscan.fit_predict(X)
+        return labels != -1
+
+    def run_isolation_forest(X, contamination=0.1):
+        iso_forest = IsolationForest(contamination=contamination, random_state=42)
+        labels = iso_forest.fit_predict(X)
+        return labels == 1
+
+    # Function to create ensemble predictions
+    def ensemble_predict(X, weights):
+        weights = np.array(weights) / np.sum(weights)
+        kmeans_pred = run_kmeans(X)
+        dbscan_pred = run_dbscan(X)
+        iforest_pred = run_isolation_forest(X)
+        ensemble_pred = (weights[0] * kmeans_pred +
+                         weights[1] * dbscan_pred +
+                         weights[2] * iforest_pred)
+        return ensemble_pred > 0.5
+
+    # User input for weights
+    st.write("Set weights for each model (they will be normalized):")
+    kmeans_weight = st.slider("K-Means weight", 0.0, 1.0, 0.4)
+    dbscan_weight = st.slider("DBSCAN weight", 0.0, 1.0, 0.3)
+    iforest_weight = st.slider("Isolation Forest weight", 0.0, 1.0, 0.3)
+    
+    weights = [kmeans_weight, dbscan_weight, iforest_weight]
+    
+    # Run ensemble model
+    X_scaled = StandardScaler().fit_transform(st.session_state.df_encoded)
+    ensemble_results = ensemble_predict(X_scaled, weights)
+    
+    # Add results to DataFrame
+    df_ensemble = pd.DataFrame(st.session_state.X_pca_2d, columns=['PC 1', 'PC 2'])
+    df_ensemble['Anomaly'] = ~ensemble_results
+    
+    # Plot pie chart
+    fig_pie = plot_pie_chart(df_ensemble, 'Ensemble Model Anomaly vs Normal Distribution')
+    st.pyplot(fig_pie)
+    
+    # Plot 2D scatter
+    fig_ensemble_2d = px.scatter(df_ensemble, x='PC 1', y='PC 2', color='Anomaly',
+                                 color_discrete_map={True: 'red', False: 'blue'},
+                                 title='Ensemble Model 2D Anomalies (PCA Reduced)')
+    st.plotly_chart(fig_ensemble_2d)
+    
+    # Display summary statistics
+    st.write(f"Number of anomalies detected: {df_ensemble['Anomaly'].sum()}")
+    st.write(f"Percentage of anomalies: {df_ensemble['Anomaly'].mean() * 100:.2f}%")
+    
+    # Option to show 3D plot
+    if st.checkbox("Show 3D Anomalies Plot"):
+        df_ensemble_3d = pd.DataFrame(st.session_state.X_pca_3d, columns=['PC 1', 'PC 2', 'PC 3'])
+        df_ensemble_3d['Anomaly'] = ~ensemble_results
+        fig_ensemble_3d = px.scatter_3d(df_ensemble_3d, x='PC 1', y='PC 2', z='PC 3', color='Anomaly',
+                                        color_discrete_map={True: 'red', False: 'blue'},
+                                        title='Ensemble Model 3D Anomalies (PCA Reduced)')
+        st.plotly_chart(fig_ensemble_3d)
+
 footer = st.sidebar.container()
 st.sidebar.markdown('#')        
 footer = st.sidebar.container()
