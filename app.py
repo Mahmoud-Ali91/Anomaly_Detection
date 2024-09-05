@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+from plotly.subplots import make_subplots
 import numpy as np
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import OneHotEncoder, RobustScaler
@@ -331,6 +332,38 @@ The process helps identify risks early and improve efficiency.
     y='Anomaly Percentage Result',
     color='Model').properties(title="Model Performance Comparison with Tuned Parameters")
     st.altair_chart(chart, use_container_width=True)
+    st.subheader("Models Comparison Animated")
+    
+    model_performance = pd.DataFrame({
+        'Model': ['K-Means', 'DBSCAN', 'Isolation Forest'],
+        'Anomaly Percentage Result': [10.1, 8.3, 10]
+    })
+    
+    fig = make_subplots(rows=1, cols=1)
+    
+    bar = go.Bar(
+        x=model_performance['Model'],
+        y=[0, 0, 0],  # Start with zero heights
+        marker_color=['rgba(255, 99, 132, 0.6)', 'rgba(54, 162, 235, 0.6)', 'rgba(75, 192, 192, 0.6)']
+    )
+    
+    fig.add_trace(bar)
+    
+    fig.update_layout(
+        title="Model Performance Comparison with Tuned Parameters",
+        xaxis_title="Model",
+        yaxis_title="Anomaly Percentage Result",
+        yaxis_range=[0, model_performance['Anomaly Percentage Result'].max() * 1.1]
+    )
+    
+    chart = st.plotly_chart(fig, use_container_width=True)
+    
+    # Animate the bars
+    for i in range(1, 101):
+        new_heights = model_performance['Anomaly Percentage Result'] * i / 100
+        fig.data[0].y = new_heights
+        chart.plotly_chart(fig, use_container_width=True)
+        time.sleep(0.02)
     def anomaly_insights(df):
         st.subheader("Anomaly Insights")
         anomalies = df[df['Anomaly'] == 1]
