@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-from plotly.subplots import make_subplots
 import numpy as np
 from sklearn.compose import ColumnTransformer
 from sklearn.preprocessing import OneHotEncoder, RobustScaler
@@ -192,31 +191,7 @@ Our system uses advanced algorithms to automatically detect unusual patterns in 
 These patterns can indicate potential issues, such as fraud or unusual activity. 
 The process helps identify risks early and improve efficiency.
 """)
-    st.subheader("Models Comparison Animated")
     
-    model_performance = pd.DataFrame({
-        'Model': ['K-Means', 'DBSCAN', 'Isolation Forest'],
-        'Anomaly Percentage Result': [10.1, 8.3, 10]
-    })
-    
-    fig = make_subplots(rows=1, cols=1)
-    
-    bar = go.Bar(
-        x=model_performance['Model'],
-        y=[0, 0, 0],  # Start with zero heights
-        marker_color=['rgba(255, 99, 132, 0.6)', 'rgba(54, 162, 235, 0.6)', 'rgba(75, 192, 192, 0.6)']
-    )
-    
-    fig.add_trace(bar)
-    
-    fig.update_layout(
-        title="Model Performance Comparison with Tuned Parameters",
-        xaxis_title="Model",
-        yaxis_title="Anomaly Percentage Result",
-        yaxis_range=[0, model_performance['Anomaly Percentage Result'].max() * 1.1]
-    )
-    
-    chart = st.plotly_chart(fig, use_container_width=True)
     # Initialize session state
     if 'df' not in st.session_state:
         st.session_state.df = df.drop(['City of the Provider', 'State Code of the Provider', 'Provider Type', 'HCPCS Code'], axis=1)
