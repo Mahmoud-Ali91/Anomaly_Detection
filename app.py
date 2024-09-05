@@ -161,7 +161,8 @@ elif selection == "Anomalies Seen With Data Analysis":
             }
         )
         st.plotly_chart(fig)
-
+        
+    st.subheader("Box Plots")
     numerical_column = st.selectbox("Select a feature", df.select_dtypes(include=[np.number]).columns)
     st.markdown("Use this tool to check which feature has outlier data points as Potential Anomaly")
     if numerical_column:
