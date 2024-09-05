@@ -103,9 +103,10 @@ elif selection == "Anomalies Seen With Data Analysis":
         margin=dict(t=50, l=25, r=25, b=25)
     )
     st.plotly_chart(fig_sunburst)
-    st.markdown("Use this tool See Medicare Number of Services in relation to States")
     # Choropleth Map
     st.subheader("States Provider Map")
+    st.markdown("Use this tool See Medicare Number of Services in relation to States")
+
     
     state_services = df.groupby('State Code of the Provider')['Number of Services'].sum().reset_index()
 
@@ -135,7 +136,7 @@ elif selection == "Anomalies Seen With Data Analysis":
     
     # Numerical Analysis
     st.subheader("Numerical Analysis")
-    if st.checkbox("Show Correlation Heatmap"):
+    if st.checkbox("Check to Show Correlation Between Features Heatmap"):
         float_columns = df.select_dtypes(include='float')
         corr = float_columns.corr()
         fig = px.imshow(
@@ -161,12 +162,13 @@ elif selection == "Anomalies Seen With Data Analysis":
         )
         st.plotly_chart(fig)
 
-    numerical_column = st.selectbox("Select a feature to see anomaly (outliers)", df.select_dtypes(include=[np.number]).columns)
+    numerical_column = st.selectbox("Select a feature", df.select_dtypes(include=[np.number]).columns)
+    st.markdown("Use this tool to check which feature has outlier data points as Potential Anomaly")
     if numerical_column:
         fig = px.box(df, x=numerical_column)
         st.plotly_chart(fig)
         
-    st.title("How Each feature relates to the other?")
+    st.subheader("How Each feature relates to the other?")
     
     # Select only float columns
     float_columns = df.select_dtypes(include='float').columns.tolist()
