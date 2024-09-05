@@ -31,14 +31,15 @@ def plot_pie_chart(df, title):
     return fig
 
 # Sidebar for navigation
-st.sidebar.title("Medicare Insurance Anomaly Detection Dashboard")
+st.sidebar.title("Dashboard")
 selection = st.sidebar.radio("Choose an option", ["Introduction","Anomalies Seen With Data Analysis", "Anomalies Seen with Models"])
 if selection == "Introduction":
+    st.title("Medicare Insurance Anomaly Detection")
     st.image("cover.png", caption="Medicare Insurance", use_column_width=True)
     
     st.markdown("""
     <div style="text-align: center;">
-        <p>This project analyzes Medicare insurance data to detect anomalies using Data Analysis and Unsupervised machine learning techniques. Medicare is United States Medical Insurance that covers elderly persons. Fighting fraud is crucial to better health care coverage.</p>
+        <p>This project examines Medicare insurance data to detect anomalies using Data Analysis and Unsupervised machine learning techniques. Medicare is United States Medical Insurance that covers elderly persons. Fighting fraud is crucial to better health care coverage.</p>
         <p style="color: #333333;">Explore different sections to understand the data and the models used.</p>
     </div>
     """, unsafe_allow_html=True)
