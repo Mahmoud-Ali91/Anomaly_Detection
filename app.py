@@ -333,12 +333,7 @@ The process helps identify risks early and improve efficiency.
     color='Model').properties(title="Model Performance Comparison with Tuned Parameters")
     st.altair_chart(chart, use_container_width=True)
     
-    # Animate the bars
-    for i in range(1, 101):
-        new_heights = model_performance['Anomaly Percentage Result'] * i / 100
-        fig.data[0].y = new_heights
-        chart.plotly_chart(fig, use_container_width=True)
-        time.sleep(0.02)
+
     def anomaly_insights(df):
         st.subheader("Anomaly Insights")
         anomalies = df[df['Anomaly'] == 1]
