@@ -434,5 +434,5 @@ with footer:
     # Add Epsilon AI logo
     epsilon_logo = Image.open("epsilon_ai_logo.png")
     st.image(epsilon_logo, width=100)
-    
+    st.cache_data.clear()
 
