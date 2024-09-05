@@ -55,6 +55,7 @@ elif selection == "Anomalies Seen With Data Analysis":
 
     # Categorical Analysis
     st.subheader("Categorical Analysis")
+    st.markdown("Use this tool to see variance in Type, Place & Drug Indicator of Medicare Providers") 
     categorical_column = st.selectbox("Select a categorical column", 
                                       ['Entity Type of the Provider', 'Place of Service', 'HCPCS Drug Indicator'])
     
@@ -76,6 +77,7 @@ elif selection == "Anomalies Seen With Data Analysis":
     st.plotly_chart(fig)
 # Visualization for top N records
     st.subheader("Top Records Analysis")
+    st.markdown("Use this tool Check Which States, Cities & Specialization Provides more Services")
     selected_column = st.selectbox("Select column to analyze", ['City of the Provider', 'State Code of the Provider', 'Provider Type'])
     top_n = st.slider("Select number of top records to display", min_value=1, max_value=25, value=10)
 
@@ -86,6 +88,7 @@ elif selection == "Anomalies Seen With Data Analysis":
 
     # Sunburst Chart
     st.subheader("Interactive Chart")
+    st.markdown("Use this tool See Medicare Medical Specialization in relation to States")
     fig_sunburst = px.sunburst(
         df,
         path=['State Code of the Provider', 'Provider Type'],
@@ -100,9 +103,10 @@ elif selection == "Anomalies Seen With Data Analysis":
         margin=dict(t=50, l=25, r=25, b=25)
     )
     st.plotly_chart(fig_sunburst)
-
+    st.markdown("Use this tool See Medicare Number of Services in relation to States")
     # Choropleth Map
     st.subheader("States Provider Map")
+    
     state_services = df.groupby('State Code of the Provider')['Number of Services'].sum().reset_index()
 
     fig_choropleth = px.choropleth(
