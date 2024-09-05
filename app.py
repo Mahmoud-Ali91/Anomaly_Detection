@@ -32,7 +32,7 @@ def plot_pie_chart(df, title):
 
 # Sidebar for navigation
 st.sidebar.title("Medicare Insurance Anomaly Detection Dashboard")
-selection = st.sidebar.radio("Choose an option", ["Introduction","Anomalies Seen With Data Analysis", "Anomalies Seen With Unsupervised Machine Learning"])
+selection = st.sidebar.radio("Choose an option", ["Introduction","Anomalies Seen With Data Analysis", "Anomalies Seen with Models"])
 if selection == "Introduction":
     st.image("cover.png", caption="Medicare Insurance", use_column_width=True)
     
@@ -176,9 +176,13 @@ elif selection == "Anomalies Seen With Data Analysis":
         st.plotly_chart(fig)
     else:
         st.error("Please select different features for X and Y axes.")
-elif selection == "Anomalies Seen With Unsupervised Machine Learning":
-    st.header("Unsupervised Machine Learning")
-
+elif selection == "Anomalies Seen with Models":
+    st.header("Automated Anomaly Detection")
+    st.markdown("""
+Our system uses advanced algorithms to automatically detect unusual patterns in the data. 
+These patterns can indicate potential issues, such as fraud or unusual activity. 
+The process helps identify risks early and improve efficiency.
+""")
     # Initialize session state
     if 'df' not in st.session_state:
         st.session_state.df = df.drop(['City of the Provider', 'State Code of the Provider', 'Provider Type', 'HCPCS Code'], axis=1)
@@ -227,6 +231,7 @@ elif selection == "Anomalies Seen With Unsupervised Machine Learning":
     st.success("Model trained successfully!")
     if model_option == "K-Means":
         st.subheader("K-Means Clustering")
+        st.markdown("This tool groups similar data together. By grouping data, we can identify areas that don’t fit, spotting potential issues.")
         kmeans_clusters = st.slider("Select number of clusters", min_value=1, max_value=10, value=2)
         
         kmeans = KMeans(n_clusters=kmeans_clusters, random_state=42)
@@ -255,6 +260,8 @@ elif selection == "Anomalies Seen With Unsupervised Machine Learning":
 
     elif model_option == "DBSCAN":
         st.subheader("DBSCAN Clustering")
+        st.markdown("This method looks at how closely data points are packed together. It helps uncover irregular patterns that might indicate problems.")
+
         eps = st.slider("Select eps", min_value=0.01, max_value=1.0, step=0.01, value=0.05)
         min_samples = st.slider("Select min_samples", min_value=1, max_value=20, value=5)
         
@@ -282,6 +289,8 @@ elif selection == "Anomalies Seen With Unsupervised Machine Learning":
 
     elif model_option == "Isolation Forest":
         st.subheader("Isolation Forest")
+        st.markdown("This method finds data points that are very different from the rest. These unusual points may indicate fraud or errors.")
+
         contamination = st.slider("Select contamination", min_value=0.01, max_value=0.5, step=0.01, value=0.1)
         
         iso_forest = IsolationForest(contamination=contamination, random_state=42)
@@ -327,7 +336,7 @@ elif selection == "Anomalies Seen With Unsupervised Machine Learning":
    
     elif model_option == "Ensemble":
         st.subheader("Ensemble Model")
-        
+        st.markdown("We combine the strengths of different models to improve accuracy and reliability. This method can detect anomalies more effectively by leveraging multiple techniques.")
         # Functions for individual models (you can reuse your existing functions)
         def run_kmeans(X, n_clusters=2):
             kmeans = KMeans(n_clusters=n_clusters, random_state=42)
