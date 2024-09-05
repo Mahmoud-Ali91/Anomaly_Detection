@@ -421,7 +421,51 @@ The process helps identify risks early and improve efficiency.
                                                     title='Ensemble Model 3D Anomalies (PCA Reduced)')
                     st.plotly_chart(fig_ensemble_3d)
                 else:
-                    st.warning("3D PCA data is not available. Unable to show 3D plot.") 
+                    st.warning("3D PCA data is not available. Unable to show 3D plot.")
+            # Example placeholder data; replace with actual metrics collected
+comparison_data = {
+    "Model": ["KMeans", "DBSCAN", "Isolation Forest"],
+    "Time": ["T1", "T2", "T3", "T4"],  # Placeholder for different time points
+    "Anomalies Count": [10, 15, 20]  # Placeholder for actual anomalies count for each model
+}
+
+comparison_df = pd.DataFrame(comparison_data)
+
+# Create an animated bar chart
+fig_comparison = px.bar(
+    comparison_df,
+    x='Model',
+    y='Anomalies Count',
+    animation_frame='Time',
+    range_y=[0, comparison_df['Anomalies Count'].max() + 10],  # Adjust range if necessary
+    title="Model Performance Comparison Over Time",
+    labels={'Anomalies Count': 'Number of Anomalies'}
+)
+
+fig_comparison.update_layout(
+    xaxis_title='Model',
+    yaxis_title='Number of Anomalies',
+    updatemenus=[{
+        'buttons': [
+            {'args': [None, {'frame': {'duration': 1000, 'redraw': True}, 'fromcurrent': True}],
+             'label': 'Play',
+             'method': 'animate'},
+            {'args': [[None], {'frame': {'duration': 0, 'redraw': True}, 'mode': 'immediate', 'transition': {'duration': 0}}],
+             'label': 'Pause',
+             'method': 'animate'}
+        ],
+        'direction': 'left',
+        'pad': {'r': 10, 't': 50},
+        'showactive': True,
+        'type': 'buttons',
+        'x': 0.1,
+        'xanchor': 'right',
+        'y': 0,
+        'yanchor': 'top'
+    }]
+)
+
+st.plotly_chart(fig_comparison)
 
 footer = st.sidebar.container()
 st.sidebar.markdown('#')        
